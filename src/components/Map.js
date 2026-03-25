@@ -11,8 +11,8 @@ export const metadata = [
         // false = left, true = right
         direction: false,
         // how many tiles per second
-        speed: 1,
-        vehciles: [{ initialTileIndex: 2, color: "#ff0000" }]
+        speed: 2,
+        vehicles: [{ initialTileIndex: 2, color: "#ff0000" }]
     },
     {
         type: "forest",
@@ -27,8 +27,8 @@ export const metadata = [
         // false = left, true = right
         direction: true,
         // how many tiles per second
-        speed: 1,
-        vehciles: [{ initialTileIndex: -1, color: "#00ff00" }]
+        speed: 2,
+        vehicles: [{ initialTileIndex: -1, color: "#00ff00" }]
     },
 ]
 
@@ -57,24 +57,26 @@ export function addRows() {
         }
         if (rowData.type === "car") {
             const road = Road(rowIndex)
-            rowData.vehciles.forEach((vehicle) => {
+            rowData.vehicles.forEach((vehicle) => {
                 const car = Car(
                     vehicle.initialTileIndex,
                     rowData.direction,
                     vehicle.color);
 
+                vehicle.ref = car;
                 road.add(car)
             });
             map.add(road)
         }
         if (rowData.type === "truck") {
             const row = Road(rowIndex)
-            rowData.vehciles.forEach((vehicle) => {
+            rowData.vehicles.forEach((vehicle) => {
                 const truck = Truck(
                     vehicle.initialTileIndex,
                     rowData.direction,
                     vehicle.color
-                )
+                );
+                vehicle.ref = truck;
                 row.add(truck)
             })
             map.add(row)
