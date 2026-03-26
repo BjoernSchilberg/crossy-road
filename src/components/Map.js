@@ -12,7 +12,15 @@ export const metadata = [
         direction: false,
         // how many tiles per second
         speed: 2,
-        vehicles: [{ initialTileIndex: 2, color: "#ff0000" }]
+        vehicles: [{ initialTileIndex: 2, color: "#ff0000" }, { initialTileIndex: 6, color: "#0000ff" }]
+    },
+    {
+        type: "car",
+        // false = left, true = right
+        direction: false,
+        // how many tiles per second
+        speed: 2,
+        vehicles: [{ initialTileIndex: 10, color: "#ffff00" }]
     },
     {
         type: "forest",
@@ -29,6 +37,14 @@ export const metadata = [
         // how many tiles per second
         speed: 2,
         vehicles: [{ initialTileIndex: -1, color: "#00ff00" }]
+    },
+    {
+        type: "forest",
+        trees: [
+            { tileIndex: -4, heights: 50 },
+            { tileIndex: 1, heights: 30 },
+            { tileIndex: 4, heights: 50 },
+        ]
     },
 ]
 
