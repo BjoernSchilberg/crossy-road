@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { Grass } from "./Grass";
-import { Tree } from "./Tree";
-import { Car } from "./Car";
-import { Road } from "./Road";
-import { Truck } from "./Truck";
+import { Grass } from './Grass.js';
+import { Tree } from './Tree.js';
+import { Car } from './Car.js';
+import { Road } from './Road.js';
+import { Truck } from './Truck.js';
 
 export const metadata = [
     {

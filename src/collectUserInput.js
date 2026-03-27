@@ -1,23 +1,61 @@
-import { queueMove } from "./components/Player";
+import { queueMove } from './components/Player.js';
 
 
 // Note: preventDefault() is used to prevent the default 
 // behavior of the arrow keys, which is to scroll the page.
 window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowUp") {
-        event.preventDefault();
         queueMove("forward");
     }
     if (event.key === "ArrowDown") {
-        event.preventDefault();
         queueMove("backward");
     }
     if (event.key === "ArrowLeft") {
-        event.preventDefault();
         queueMove("left");
     }
     if (event.key === "ArrowRight") {
-        event.preventDefault();
         queueMove("right");
     }
 });
+
+// Track previous gamepad button/axis states for edge detection (press, not hold)
+const prevState = {};
+
+export function pollGamepad() {
+    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const gp = gamepads[0];
+    if (!gp) return;
+
+    // Skip game input when the launcher hotkey (button 16) is held
+    const hotkey = gp.buttons[16]?.pressed;
+    if (hotkey) return;
+
+    const checkButton = (index, action) => {
+        const pressed = gp.buttons[index]?.pressed ?? false;
+        if (pressed && !prevState[index]) queueMove(action);
+        prevState[index] = pressed;
+    };
+
+    // D-pad
+    checkButton(12, 'forward');
+    checkButton(13, 'backward');
+    checkButton(14, 'left');
+    checkButton(15, 'right');
+
+    // Left analog stick
+    const THRESHOLD = 0.5;
+    const stickLeft  = gp.axes[0] < -THRESHOLD;
+    const stickRight = gp.axes[0] >  THRESHOLD;
+    const stickUp    = gp.axes[1] < -THRESHOLD;
+    const stickDown  = gp.axes[1] >  THRESHOLD;
+
+    if (stickLeft  && !prevState.stickLeft)  queueMove('left');
+    if (stickRight && !prevState.stickRight) queueMove('right');
+    if (stickUp    && !prevState.stickUp)    queueMove('forward');
+    if (stickDown  && !prevState.stickDown)  queueMove('backward');
+
+    prevState.stickLeft  = stickLeft;
+    prevState.stickRight = stickRight;
+    prevState.stickUp    = stickUp;
+    prevState.stickDown  = stickDown;
+}

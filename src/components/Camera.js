@@ -2,7 +2,11 @@ import * as THREE from "three";
 
 export function Camera() {
     const size = 300;
-    const viewRatio = window.innerWidth / window.innerHeight;
+    const isLauncher = typeof globalThis._jsg !== 'undefined';
+    const gameCanvas = document.getElementById('game');
+    const gameWidth  = isLauncher ? gameCanvas.width  : window.innerWidth;
+    const gameHeight = isLauncher ? gameCanvas.height : window.innerHeight;
+    const viewRatio = gameWidth / gameHeight;
     const width = viewRatio < 1 ? size : size * viewRatio;
     const height = viewRatio < 1 ? size / viewRatio : size;
 

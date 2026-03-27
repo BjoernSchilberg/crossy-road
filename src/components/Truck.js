@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { tileSize } from "../constants";
-import { Wheel } from "./Wheel";
+import { tileSize } from '../constants.js';
+import { Wheel } from './Wheel.js';
 
 export function Truck(initialTileIndex, direction, color) {
     const truck = new THREE.Group();
