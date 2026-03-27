@@ -41,9 +41,11 @@ function setPosition(progress) {
     player.position.x = THREE.MathUtils.lerp(startX, endX, progress);
 
     player.position.y = THREE.MathUtils.lerp(startY, endY, progress);
+    // The player will have jump, where the maximum height is 8 units, and it will be at the middle of the step
     player.position.z = Math.sin(progress * Math.PI) * 8;
 }
 
+// The player will rotate to face the direction of the movement.
 function setRotation(progress) {
 
     let endRotation = 0;
