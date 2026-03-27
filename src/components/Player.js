@@ -29,7 +29,11 @@ function Player() {
     cap.receiveShadow = true;
     player.add(cap);
 
-    return player;
+
+    const playerContainer = new THREE.Group();
+    playerContainer.add(player);
+
+    return playerContainer;
 }
 
 
