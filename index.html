@@ -6,6 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>crossy_road</title>
+  <link rel="stylesheet" href="/src/style.css" />
   <style>
     body { margin: 0; overflow: hidden; background: #000; }
     #game { display: block; }
@@ -15,6 +16,14 @@
 <body>
   <div id="app"></div>
   <canvas id="game" width="640" height="480"></canvas>
+      <div id="controls">
+      <div>
+        <button id="forward">▲</button>
+        <button id="left">◀</button>
+        <button id="backward">▼</button>
+        <button id="right">▶</button>
+      </div>
+    </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 

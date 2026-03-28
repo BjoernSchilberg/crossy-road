@@ -1,5 +1,26 @@
 import { queueMove } from './components/Player.js';
 
+// Touch controls — only in browser, not in jsgamelauncher.
+// (The launcher's document.getElementById returns the canvas for any id,
+// so we must guard against accidentally binding to it.)
+if (typeof globalThis._jsg === 'undefined') {
+  document
+    .getElementById("forward")
+    ?.addEventListener("click", () => queueMove("forward"));
+
+  document
+    .getElementById("backward")
+    ?.addEventListener("click", () => queueMove("backward"));
+
+  document
+    .getElementById("left")
+    ?.addEventListener("click", () => queueMove("left"));
+
+  document
+    .getElementById("right")
+    ?.addEventListener("click", () => queueMove("right"));
+}
+
 
 // Note: preventDefault() is used to prevent the default 
 // behavior of the arrow keys, which is to scroll the page.
