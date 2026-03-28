@@ -7,6 +7,7 @@ import { map, initialzeMap } from './components/Map.js';
 import { animateVehicles } from './animateVehicles.js';
 import { animatePlayer } from './animatePlayer.js';
 import { pollGamepad } from './collectUserInput.js';
+import { initScoreHUD, renderScoreHUD } from './components/ScoreDisplay.js';
 
 // import './style.css' // Not supported in the native runner
 
@@ -36,6 +37,8 @@ initializeGame();
 const renderer = Renderer();
 const canvas = document.getElementById("game");
 
+initScoreHUD(renderer);
+
 let lastTime = performance.now();
 
 function update(deltaTime) {
@@ -50,6 +53,8 @@ function update(deltaTime) {
 function render() {
     // draw the game
     renderer.render(scene, camera);
+    // draw HUD overlay (score) — launcher only; browser uses DOM
+    renderScoreHUD(renderer);
 }
 
 function gameLoop(time) {

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { endsUpInValidPosition } from "./utilities/endsUpInValidPosition.js";
+import { updateScore } from "./ScoreDisplay.js";
 
 export const player = Player();
 
@@ -65,7 +66,6 @@ export function stepCompleted() {
     if (direction === "left") position.currentTile--;
     if (direction === "right") position.currentTile++;
 
-    const scoreDOM = document.getElementById("score");
-    if (scoreDOM) scoreDOM.innerText = position.currentRow.toString();
+    updateScore(position.currentRow);
 
 }
