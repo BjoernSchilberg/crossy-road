@@ -45,7 +45,7 @@ export const position = {
 export const movesQueue = [];
 
 export function queueMove(direction) {
-    const isValidMove=endsUpInValidPosition(
+    const isValidMove = endsUpInValidPosition(
         {
             rowIndex: position.currentRow,
             tileIndex: position.currentTile
@@ -64,5 +64,8 @@ export function stepCompleted() {
     if (direction === "backward") position.currentRow--;
     if (direction === "left") position.currentTile--;
     if (direction === "right") position.currentTile++;
+
+    const scoreDOM = document.getElementById("score");
+    if (scoreDOM) scoreDOM.innerText = position.currentRow.toString();
 
 }
