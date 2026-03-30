@@ -37,7 +37,7 @@ initializeGame();
 const renderer = Renderer();
 const canvas = document.getElementById("game");
 
-initScoreHUD(renderer);
+initScoreHUD(camera);
 
 let lastTime = performance.now();
 
