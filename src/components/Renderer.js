@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mobileControlsReserve } from "../mobileControlsReserve.js";
 
 export function Renderer() {
     const canvas = document.getElementById("game");
@@ -11,7 +12,7 @@ export function Renderer() {
     // reflects the native display. In the browser we render at the full viewport.
     const isLauncher = typeof globalThis._jsg !== 'undefined';
     const width  = isLauncher ? canvas.width  : window.innerWidth;
-    const height = isLauncher ? canvas.height : window.innerHeight;
+    const height = isLauncher ? canvas.height : window.innerHeight - mobileControlsReserve();
 
     const renderer = new THREE.WebGLRenderer({
         alpha: true,

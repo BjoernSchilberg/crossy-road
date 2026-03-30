@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { Renderer } from './components/Renderer.js';
-import { Camera } from './components/Camera.js';
+import { Camera, frustumOffset } from './components/Camera.js';
 import { DirectionalLight } from './components/DirectionalLight.js';
 import { player, initializePlayer } from './components/Player.js';
 import { map, initializeMap } from './components/Map.js';
@@ -11,6 +11,7 @@ import { initScoreHUD, renderScoreHUD } from './components/ScoreDisplay.js';
 import { initGameOverHUD, hideGameOver } from './components/GameOverDisplay.js';
 import { hitTest } from "./hitTest.js";
 import { gameOver, resetGameOver } from "./gameState.js";
+import { mobileControlsReserve } from "./mobileControlsReserve.js";
 
 // import './style.css' // Not supported in the native runner
 
@@ -88,14 +89,17 @@ requestAnimationFrame(gameLoop);
 if (typeof globalThis._jsg === 'undefined') {
     window.addEventListener('resize', () => {
         const w = window.innerWidth;
-        const h = window.innerHeight;
+        const h = window.innerHeight - mobileControlsReserve();
         renderer.setSize(w, h);
         const size = 300;
         const ratio = w / h;
-        camera.left   = ratio < 1 ? -size / 2            : -size * ratio / 2;
-        camera.right  = ratio < 1 ?  size / 2            :  size * ratio / 2;
-        camera.top    = ratio < 1 ?  size / ratio / 2    :  size / 2;
-        camera.bottom = ratio < 1 ? -size / ratio / 2    : -size / 2;
+        const halfW = ratio < 1 ? size / 2         : size * ratio / 2;
+        const halfH = ratio < 1 ? size / ratio / 2 : size / 2;
+        const [ox, oy] = frustumOffset(ratio);
+        camera.left   = -halfW + ox;
+        camera.right  =  halfW + ox;
+        camera.top    =  halfH + oy;
+        camera.bottom = -halfH + oy;
         camera.updateProjectionMatrix();
     });
 }
