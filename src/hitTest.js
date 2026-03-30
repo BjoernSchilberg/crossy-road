@@ -15,8 +15,10 @@ export function hitTest() {
   if (!row) return;
 
   if (row.type === "car" || row.type === "truck") {
+    // Use only the inner player mesh (children[0]), not the whole container
+    // which also holds the camera and light and would make the box huge
     const playerBoundingBox = new THREE.Box3();
-    playerBoundingBox.setFromObject(player);
+    playerBoundingBox.setFromObject(player.children[0]);
 
     row.vehicles.forEach(({ ref }) => {
       if (!ref) throw Error("Vehicle reference is missing");
