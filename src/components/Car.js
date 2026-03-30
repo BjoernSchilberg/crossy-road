@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { tileSize } from '../constants.js';
 import { Wheel } from './Wheel.js';
+import { makeTexture } from './utilities/canvasTexture.js';
 
 function getCarFrontTexture() {
     const canvas = document.createElement("canvas");
@@ -14,7 +15,7 @@ function getCarFrontTexture() {
     context.fillStyle = "#666666";
     context.fillRect(8, 4, 48, 24);
 
-    return new THREE.CanvasTexture(canvas);
+    return makeTexture(canvas, context);
 }
 
 
@@ -31,7 +32,7 @@ function getCarSideTexture() {
     context.fillRect(10, 8, 38, 24);
     context.fillRect(58, 8, 60, 24);
 
-    return new THREE.CanvasTexture(canvas);
+    return makeTexture(canvas, context);
 }
 
 export function Car(initialTileIndex, direction, color) {

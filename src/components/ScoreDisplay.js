@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { makeTexture, updateTexture } from './utilities/canvasTexture.js';
 
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 
@@ -20,7 +21,7 @@ function drawScore() {
     scoreCtx.strokeText(text, 4, CANVAS_H / 2);
     scoreCtx.fillStyle = 'white';
     scoreCtx.fillText(text, 4, CANVAS_H / 2);
-    scoreTexture.needsUpdate = true;
+    updateTexture(scoreTexture, scoreCtx);
 }
 
 // Attaches the score overlay as a child of `camera` so it is rendered in the
@@ -46,9 +47,18 @@ export function initScoreHUD(camera) {
     texCanvas.height = CANVAS_H;
     scoreCtx = texCanvas.getContext('2d');
 
-    scoreTexture = new THREE.CanvasTexture(texCanvas);
-    scoreTexture.minFilter = THREE.LinearFilter;
-    scoreTexture.magFilter = THREE.LinearFilter;
+    // Draw initial state so makeTexture captures the pixels
+    const text = String(currentScore);
+    scoreCtx.font = 'bold 30px monospace';
+    scoreCtx.textBaseline = 'middle';
+    scoreCtx.lineJoin = 'round';
+    scoreCtx.strokeStyle = 'rgba(0,0,0,0.85)';
+    scoreCtx.lineWidth = 6;
+    scoreCtx.strokeText(text, 4, CANVAS_H / 2);
+    scoreCtx.fillStyle = 'white';
+    scoreCtx.fillText(text, 4, CANVAS_H / 2);
+
+    scoreTexture = makeTexture(texCanvas, scoreCtx);
 
     const mesh = new THREE.Mesh(
         new THREE.PlaneGeometry(worldW, worldH),
@@ -63,7 +73,6 @@ export function initScoreHUD(camera) {
     mesh.renderOrder = 999;
 
     camera.add(mesh);
-    drawScore();
 }
 
 export function updateScore(value) {
@@ -78,4 +87,5 @@ export function updateScore(value) {
 
 // No-op: HUD mesh lives in the scene graph and renders with the main pass.
 export function renderScoreHUD(_renderer) {}
+
 
