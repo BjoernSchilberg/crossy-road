@@ -22,13 +22,13 @@ export function animateVehicles() {
                     ref.position.x =
                         ref.position.x > endOfRow
                             ? beginningOfRow
-                            : ref.position.x + rowData.speed * delta * tileSize;
+                            : ref.position.x + rowData.speed * delta;
 
                 } else {
                     ref.position.x =
                         ref.position.x < beginningOfRow
                             ? endOfRow
-                            : ref.position.x - rowData.speed * delta * tileSize;
+                            : ref.position.x - rowData.speed * delta;
                 }
             })
         }

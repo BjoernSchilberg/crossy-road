@@ -3,7 +3,7 @@ import { Renderer } from './components/Renderer.js';
 import { Camera } from './components/Camera.js';
 import { DirectionalLight } from './components/DirectionalLight.js';
 import { player } from './components/Player.js';
-import { map, initialzeMap } from './components/Map.js';
+import { map, initializeMap } from './components/Map.js';
 import { animateVehicles } from './animateVehicles.js';
 import { animatePlayer } from './animatePlayer.js';
 import { pollGamepad } from './collectUserInput.js';
@@ -29,7 +29,7 @@ player.add(camera);
 
 
 function initializeGame() {
-    initialzeMap();
+    initializeMap();
 }
 
 initializeGame();
