@@ -44,7 +44,9 @@ function initializeGame() {
 }
 
 // Browser: retry button
-document.querySelector("#retry")?.addEventListener("click", initializeGame);
+if (typeof globalThis._jsg === 'undefined') {
+    document.querySelector("#retry")?.addEventListener("click", initializeGame);
+}
 
 initializeGame();
 
