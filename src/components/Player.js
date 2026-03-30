@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { endsUpInValidPosition } from "./utilities/endsUpInValidPosition.js";
 import { updateScore } from "./ScoreDisplay.js";
-import { metadata as rows, addRows } from "./Map.js";
+import { metadata as rows, addRows, cleanupRows } from "./Map.js";
 
 export const player = Player();
 
@@ -88,4 +88,7 @@ export function stepCompleted() {
 
   // Add new rows if the player is running out of them
   if (position.currentRow > rows.length - 10) addRows();
+
+  // Remove rows that are far behind to free memory
+  cleanupRows(position.currentRow);
 }

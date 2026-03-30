@@ -17,7 +17,7 @@ export function animateVehicles() {
             const endOfRow = (maxTileIndex + 2) * tileSize;
 
             rowData.vehicles.forEach(({ ref }) => {
-                if (!ref) throw Error("Vehicle reference is missing");
+                if (!ref) return; // row has been disposed, skip
                 if (rowData.direction) {
                     ref.position.x =
                         ref.position.x > endOfRow

@@ -8,6 +8,9 @@ const isLauncher = typeof globalThis._jsg !== 'undefined';
 const resultDOM    = isLauncher ? null : document.getElementById("result-container");
 const finalScoreDOM = isLauncher ? null : document.getElementById("final-score");
 
+const _playerBox = new THREE.Box3();
+const _vehicleBox = new THREE.Box3();
+
 export function hitTest() {
   if (gameOver) return;
 
@@ -17,16 +20,14 @@ export function hitTest() {
   if (row.type === "car" || row.type === "truck") {
     // Use only the inner player mesh (children[0]), not the whole container
     // which also holds the camera and light and would make the box huge
-    const playerBoundingBox = new THREE.Box3();
-    playerBoundingBox.setFromObject(player.children[0]);
+    _playerBox.setFromObject(player.children[0]);
 
     row.vehicles.forEach(({ ref }) => {
-      if (!ref) throw Error("Vehicle reference is missing");
+      if (!ref) return; // disposed row
 
-      const vehicleBoundingBox = new THREE.Box3();
-      vehicleBoundingBox.setFromObject(ref);
+      _vehicleBox.setFromObject(ref);
 
-      if (playerBoundingBox.intersectsBox(vehicleBoundingBox)) {
+      if (_playerBox.intersectsBox(_vehicleBox)) {
         setGameOver();
         showGameOver(position.currentRow);   // launcher Three.js HUD
         if (resultDOM) resultDOM.style.visibility = "visible"; // browser DOM

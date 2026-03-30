@@ -3,36 +3,50 @@ import { tileSize } from '../constants.js';
 import { Wheel } from './Wheel.js';
 import { makeTexture } from './utilities/canvasTexture.js';
 
+// Textures are the same for every car — create once and share.
+let _carFrontTexture = null;
+let _carSideTexture = null;
+let _carLeftSideTexture = null;
+
 function getCarFrontTexture() {
+    if (_carFrontTexture) return _carFrontTexture;
     const canvas = document.createElement("canvas");
     canvas.width = 64;
     canvas.height = 32;
     const context = canvas.getContext("2d");
-
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, 64, 32);
-
     context.fillStyle = "#666666";
     context.fillRect(8, 4, 48, 24);
-
-    return makeTexture(canvas, context);
+    _carFrontTexture = makeTexture(canvas, context);
+    return _carFrontTexture;
 }
 
-
 function getCarSideTexture() {
+    if (_carSideTexture) return _carSideTexture;
     const canvas = document.createElement("canvas");
     canvas.width = 128;
     canvas.height = 32;
     const context = canvas.getContext("2d");
-
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, 128, 32);
-
     context.fillStyle = "#666666";
     context.fillRect(10, 8, 38, 24);
     context.fillRect(58, 8, 60, 24);
+    _carSideTexture = makeTexture(canvas, context);
+    return _carSideTexture;
+}
 
-    return makeTexture(canvas, context);
+function getCarLeftSideTexture() {
+    if (_carLeftSideTexture) return _carLeftSideTexture;
+    // Clone UV-transform properties so they don't affect the shared right-side texture.
+    const t = getCarSideTexture().clone();
+    t.center = new THREE.Vector2(0.5, 0.5);
+    t.rotation = Math.PI;
+    t.flipY = false;
+    t.needsUpdate = true;
+    _carLeftSideTexture = t;
+    return _carLeftSideTexture;
 }
 
 export function Car(initialTileIndex, direction, color) {
@@ -53,15 +67,9 @@ export function Car(initialTileIndex, direction, color) {
     car.add(main);
 
     const carFrontTexture = getCarFrontTexture();
-
     const carBackTexture = getCarFrontTexture();
-
     const carRightSideTexture = getCarSideTexture();
-
-    const carLeftSideTexture = getCarSideTexture();
-    carLeftSideTexture.center = new THREE.Vector2(0.5, 0.5);
-    carLeftSideTexture.rotation = Math.PI;
-    carLeftSideTexture.flipY = false;
+    const carLeftSideTexture = getCarLeftSideTexture();
 
     const cabin = new THREE.Mesh(
         new THREE.BoxGeometry(33, 24, 12),
