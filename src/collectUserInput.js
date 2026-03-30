@@ -1,4 +1,5 @@
 import { queueMove } from './components/Player.js';
+import { gameOver } from './gameState.js';
 
 // Touch controls — only in browser, not in jsgamelauncher.
 // (The launcher's document.getElementById returns the canvas for any id,
@@ -41,6 +42,14 @@ window.addEventListener("keydown", (event) => {
 
 // Track previous gamepad button/axis states for edge detection (press, not hold)
 const prevState = {};
+// Separate edge-detection state for the game-over restart check
+const prevGameOverState = {};
+// Callback invoked when a button is pressed during game-over
+let _restartCallback = null;
+
+export function setRestartCallback(cb) {
+    _restartCallback = cb;
+}
 
 export function pollGamepad() {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -49,6 +58,28 @@ export function pollGamepad() {
 
     // Skip game input when the launcher hotkey (button 16) is held
     const hotkey = gp.buttons[16]?.pressed;
+
+    if (gameOver) {
+        if (!hotkey && _restartCallback) {
+            // Any button press (edge: was not pressed last frame) restarts the game
+            for (let i = 0; i < gp.buttons.length; i++) {
+                if (i === 16) continue;
+                const pressed = gp.buttons[i]?.pressed ?? false;
+                if (pressed && !prevGameOverState[i]) {
+                    // Clear state so it doesn't fire again immediately after restart
+                    for (const k in prevGameOverState) delete prevGameOverState[k];
+                    _restartCallback();
+                    return;
+                }
+                prevGameOverState[i] = pressed;
+            }
+        }
+        return;
+    }
+
+    // Leaving game-over: clear the separate state
+    for (const k in prevGameOverState) delete prevGameOverState[k];
+
     if (hotkey) return;
 
     const checkButton = (index, action) => {

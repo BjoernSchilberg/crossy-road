@@ -2,12 +2,15 @@ import * as THREE from "three";
 import { Renderer } from './components/Renderer.js';
 import { Camera } from './components/Camera.js';
 import { DirectionalLight } from './components/DirectionalLight.js';
-import { player } from './components/Player.js';
+import { player, initializePlayer } from './components/Player.js';
 import { map, initializeMap } from './components/Map.js';
 import { animateVehicles } from './animateVehicles.js';
-import { animatePlayer } from './animatePlayer.js';
-import { pollGamepad } from './collectUserInput.js';
+import { animatePlayer, resetAnimation } from './animatePlayer.js';
+import { pollGamepad, setRestartCallback } from './collectUserInput.js';
 import { initScoreHUD, renderScoreHUD } from './components/ScoreDisplay.js';
+import { initGameOverHUD, hideGameOver } from './components/GameOverDisplay.js';
+import { hitTest } from "./hitTest.js";
+import { gameOver, resetGameOver } from "./gameState.js";
 
 // import './style.css' // Not supported in the native runner
 
@@ -27,47 +30,57 @@ const camera = Camera();
 //scene.add(camera)
 player.add(camera);
 
+const resultDOM = typeof globalThis._jsg === 'undefined'
+    ? document.getElementById("result-container")
+    : null;
 
 function initializeGame() {
+    resetGameOver();
+    hideGameOver();
+    resetAnimation();
+    initializePlayer();   // also resets score via updateScore(0)
     initializeMap();
+    if (resultDOM) resultDOM.style.visibility = "hidden";
 }
+
+// Browser: retry button
+document.querySelector("#retry")?.addEventListener("click", initializeGame);
 
 initializeGame();
 
 const renderer = Renderer();
-const canvas = document.getElementById("game");
 
 initScoreHUD(camera);
+initGameOverHUD(camera);
+
+// Launcher: restart on any gamepad button press when game over
+setRestartCallback(initializeGame);
 
 let lastTime = performance.now();
 
 function update(deltaTime) {
-    // check for gamepad input
+    // check for gamepad input (also handles restart when game over)
     pollGamepad();
+    if (gameOver) return;
     // update game logic
     animateVehicles();
     animatePlayer();
-    // play sound effects
+    hitTest();
 }
 
 function render() {
-    // draw the game
     renderer.render(scene, camera);
-    // draw HUD overlay (score) — launcher only; browser uses DOM
     renderScoreHUD(renderer);
 }
 
 function gameLoop(time) {
     const deltaTime = performance.now() - lastTime;
-    
     update(deltaTime);
     render();
-    
     lastTime = time;
     requestAnimationFrame(gameLoop);
 }
 
-// start the game loop
 requestAnimationFrame(gameLoop);
 
 if (typeof globalThis._jsg === 'undefined') {
