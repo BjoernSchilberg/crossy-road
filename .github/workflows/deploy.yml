@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_POCKETBASE_TOKEN: ${{ secrets.VITE_POCKETBASE_TOKEN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
