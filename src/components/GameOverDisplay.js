@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { makeTexture, updateTexture } from './utilities/canvasTexture.js';
 import { getTopScores } from '../services/pocketbase.js';
+import { replaceEmoji } from '../services/emojiMap.js';
 
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 
@@ -12,6 +13,7 @@ let overlayTexture = null;
 let overlayMesh = null;
 let currentScore = 0;
 let topScores = [];
+let _scoresLoading = false;
 
 function drawOverlay() {
     overlayCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
@@ -52,16 +54,16 @@ function drawOverlay() {
         const rank = `${i + 1}.`;
         overlayCtx.fillStyle = i === 0 ? '#ffd700' : '#cccccc';
         overlayCtx.fillText(rank, 24, y);
-        overlayCtx.fillText(player.substring(0, 12), 52, y);
+        overlayCtx.fillText(replaceEmoji(player).substring(0, 12), 52, y);
         overlayCtx.textAlign = 'right';
         overlayCtx.fillText(String(score), CANVAS_W - 24, y);
         overlayCtx.textAlign = 'left';
     });
 
     if (topScores.length === 0) {
-        overlayCtx.fillStyle = '#888';
+        overlayCtx.fillStyle = '#555';
         overlayCtx.textAlign = 'center';
-        overlayCtx.fillText('loading...', CANVAS_W / 2, 148);
+        overlayCtx.fillText(_scoresLoading ? 'loading...' : 'no scores available', CANVAS_W / 2, 148);
     }
 
     // Hint
@@ -115,9 +117,11 @@ export async function showGameOver(score) {
     if (!overlayMesh) return;
     currentScore = score;
     topScores = [];
+    _scoresLoading = true;
     drawOverlay();                  // show immediately with "loading..."
     overlayMesh.visible = true;
     topScores = await getTopScores(8);
+    _scoresLoading = false;
     drawOverlay();                  // redraw with actual data
 }
 
