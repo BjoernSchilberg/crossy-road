@@ -6,7 +6,9 @@ import { replaceEmoji } from '../services/emojiMap.js';
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 
 const CANVAS_W = 320;
-const CANVAS_H = 290;  // taller to fit leaderboard
+const CANVAS_H = 320;  // tall enough for 10 rows + scroll indicators + hint
+const ROWS_VISIBLE = 10;
+const ROW_H = 16;
 
 let overlayCtx = null;
 let overlayTexture = null;
@@ -14,6 +16,7 @@ let overlayMesh = null;
 let currentScore = 0;
 let topScores = [];
 let _scoresLoading = false;
+let _scrollOffset = 0;
 
 function drawOverlay() {
     overlayCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
@@ -40,20 +43,23 @@ function drawOverlay() {
     overlayCtx.fillStyle = '#ffdd44';
     overlayCtx.fillText('TOP SCORES', CANVAS_W / 2, 92);
 
-    // Divider
-    overlayCtx.fillStyle = '#555';
-    overlayCtx.fillRect(20, 104, CANVAS_W - 40, 1);
+    // Scroll up indicator
+    const canScrollUp = _scrollOffset > 0;
+    const canScrollDown = _scrollOffset + ROWS_VISIBLE < topScores.length;
+    overlayCtx.font = '11px monospace';
+    overlayCtx.fillStyle = canScrollUp ? '#aaa' : '#333';
+    overlayCtx.fillText('[ up ]', CANVAS_W / 2, 104);
 
     // Leaderboard rows
     overlayCtx.font = '12px monospace';
     overlayCtx.textAlign = 'left';
     overlayCtx.textBaseline = 'middle';
-    const rowH = 17;
-    topScores.slice(0, 8).forEach(({ player, score }, i) => {
-        const y = 112 + i * rowH + rowH / 2;
-        const rank = `${i + 1}.`;
-        overlayCtx.fillStyle = i === 0 ? '#ffd700' : '#cccccc';
-        overlayCtx.fillText(rank, 24, y);
+    const rowsToShow = topScores.slice(_scrollOffset, _scrollOffset + ROWS_VISIBLE);
+    rowsToShow.forEach(({ player, score }, i) => {
+        const rank = _scrollOffset + i + 1;
+        const y = 114 + i * ROW_H + ROW_H / 2;
+        overlayCtx.fillStyle = rank === 1 ? '#ffd700' : '#cccccc';
+        overlayCtx.fillText(`${rank}.`, 24, y);
         overlayCtx.fillText(replaceEmoji(player).substring(0, 12), 52, y);
         overlayCtx.textAlign = 'right';
         overlayCtx.fillText(String(score), CANVAS_W - 24, y);
@@ -63,15 +69,19 @@ function drawOverlay() {
     if (topScores.length === 0) {
         overlayCtx.fillStyle = '#555';
         overlayCtx.textAlign = 'center';
-        overlayCtx.fillText(_scoresLoading ? 'loading...' : 'no scores available', CANVAS_W / 2, 148);
+        overlayCtx.fillText(_scoresLoading ? 'loading...' : 'no scores available', CANVAS_W / 2, 114 + ROW_H * 5);
     }
 
-    // Hint
-    overlayCtx.font = '12px monospace';
-    overlayCtx.fillStyle = '#aaaaaa';
+    // Scroll down indicator
+    overlayCtx.font = '11px monospace';
+    overlayCtx.fillStyle = canScrollDown ? '#aaa' : '#333';
     overlayCtx.textAlign = 'center';
-    overlayCtx.textBaseline = 'middle';
-    overlayCtx.fillText('Press any button to retry', CANVAS_W / 2, CANVAS_H - 14);
+    overlayCtx.fillText('[ down ]', CANVAS_W / 2, 114 + ROWS_VISIBLE * ROW_H + 8);
+
+    // Hint
+    overlayCtx.font = '11px monospace';
+    overlayCtx.fillStyle = '#aaaaaa';
+    overlayCtx.fillText('other button: retry', CANVAS_W / 2, CANVAS_H - 10);
 
     updateTexture(overlayTexture, overlayCtx);
 }
@@ -118,11 +128,20 @@ export async function showGameOver(score) {
     currentScore = score;
     topScores = [];
     _scoresLoading = true;
+    _scrollOffset = 0;
     drawOverlay();                  // show immediately with "loading..."
     overlayMesh.visible = true;
-    topScores = await getTopScores(8);
+    topScores = await getTopScores(20);
     _scoresLoading = false;
     drawOverlay();                  // redraw with actual data
+}
+
+/** Scroll the leaderboard by delta rows (+1 = down, -1 = up). */
+export function scrollLeaderboard(delta) {
+    if (!isLauncher || !overlayMesh?.visible) return;
+    const max = Math.max(0, topScores.length - ROWS_VISIBLE);
+    _scrollOffset = Math.min(max, Math.max(0, _scrollOffset + delta));
+    drawOverlay();
 }
 
 export function hideGameOver() {

@@ -129,12 +129,17 @@ body {
     margin: 0;
     width: 100%;
     font-size: 0.65em;
+    height: calc(10 * 22px); /* exactly 10 rows */
+    overflow-y: scroll;
 
     li {
       display: flex;
       justify-content: space-between;
       gap: 16px;
       padding: 2px 0;
+      height: 18px;        /* fixed row height so 10 rows = exact container height */
+      align-items: center;
+      overflow: hidden;
     }
 
     .lb-score {
