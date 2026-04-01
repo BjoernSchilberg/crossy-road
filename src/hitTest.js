@@ -3,15 +3,25 @@ import { metadata as rows } from "./components/Map.js";
 import { player, position } from "./components/Player.js";
 import { gameOver, setGameOver, playerName } from "./gameState.js";
 import { showGameOver } from "./components/GameOverDisplay.js";
-import { submitScore } from "./services/pocketbase.js";
+import { submitScore, getTopScores } from "./services/pocketbase.js";
 import { getPlatform } from "./services/platform.js";
 
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 const resultDOM    = isLauncher ? null : document.getElementById("result-container");
 const finalScoreDOM = isLauncher ? null : document.getElementById("final-score");
 
+const leaderboardDOM = isLauncher ? null : document.getElementById("leaderboard");
+
 const _playerBox = new THREE.Box3();
 const _vehicleBox = new THREE.Box3();
+
+function renderLeaderboard(scores) {
+  if (!leaderboardDOM) return;
+  leaderboardDOM.innerHTML = scores
+    .map(({ player, score }) =>
+      `<li><span>${player}</span><span class="lb-score">${score}</span></li>`)
+    .join('');
+}
 
 export function hitTest() {
   if (gameOver) return;
@@ -35,7 +45,10 @@ export function hitTest() {
         showGameOver(score);                                        // launcher Three.js HUD
         if (resultDOM) resultDOM.style.visibility = "visible";     // browser DOM
         if (finalScoreDOM) finalScoreDOM.innerText = score.toString();
-        submitScore(playerName, score, getPlatform());              // fire-and-forget
+        // Submit score then refresh leaderboard (browser only)
+        Promise.resolve(submitScore(playerName, score, getPlatform())).then(() =>
+            getTopScores(10).then(renderLeaderboard)
+        );
       }
     });
   }

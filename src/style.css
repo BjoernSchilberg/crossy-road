@@ -120,6 +120,28 @@ body {
     align-items: center;
     background-color: white;
     padding: 20px;
+    gap: 10px;
+  }
+
+  #leaderboard {
+    list-style: decimal;
+    padding: 0 0 0 1.4em;
+    margin: 0;
+    width: 100%;
+    font-size: 0.65em;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 2px 0;
+    }
+
+    .lb-score {
+      font-weight: bold;
+      min-width: 2.5em;
+      text-align: right;
+    }
   }
 
   button {

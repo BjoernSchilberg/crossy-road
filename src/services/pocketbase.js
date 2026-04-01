@@ -53,3 +53,24 @@ export function resetScoreSession() {
     _bestScore = -1;
 }
 
+/**
+ * Fetches the top scores from PocketBase, sorted by score descending.
+ * Returns an array of { player, score } objects, or [] on error.
+ * @param {number} limit
+ * @returns {Promise<Array<{player: string, score: number}>>}
+ */
+export async function getTopScores(limit = 10) {
+    if (!POCKETBASE_TOKEN) return [];
+    try {
+        const url = `${POCKETBASE_URL}/api/collections/scores/records?sort=-score&perPage=${limit}`;
+        const res = await fetch(url, {
+            headers: { 'Authorization': POCKETBASE_TOKEN },
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.items ?? []).map(({ player, score }) => ({ player, score }));
+    } catch (_) {
+        return [];
+    }
+}
+

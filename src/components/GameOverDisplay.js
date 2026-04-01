@@ -1,40 +1,75 @@
 import * as THREE from "three";
 import { makeTexture, updateTexture } from './utilities/canvasTexture.js';
+import { getTopScores } from '../services/pocketbase.js';
 
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 
 const CANVAS_W = 320;
-const CANVAS_H = 160;
+const CANVAS_H = 290;  // taller to fit leaderboard
 
 let overlayCtx = null;
 let overlayTexture = null;
 let overlayMesh = null;
 let currentScore = 0;
+let topScores = [];
 
 function drawOverlay() {
     overlayCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
     // Dark semi-transparent background
-    overlayCtx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+    overlayCtx.fillStyle = 'rgba(0, 0, 0, 0.88)';
     overlayCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
     overlayCtx.textAlign = 'center';
     overlayCtx.textBaseline = 'middle';
 
     // "GAME OVER"
-    overlayCtx.font = 'bold 38px monospace';
+    overlayCtx.font = 'bold 32px monospace';
     overlayCtx.fillStyle = '#ff4444';
-    overlayCtx.fillText('GAME OVER', CANVAS_W / 2, 48);
+    overlayCtx.fillText('GAME OVER', CANVAS_W / 2, 28);
 
     // Score
-    overlayCtx.font = 'bold 24px monospace';
+    overlayCtx.font = 'bold 20px monospace';
     overlayCtx.fillStyle = 'white';
-    overlayCtx.fillText(`Score: ${currentScore}`, CANVAS_W / 2, 96);
+    overlayCtx.fillText(`Score: ${currentScore}`, CANVAS_W / 2, 62);
+
+    // Leaderboard title
+    overlayCtx.font = 'bold 13px monospace';
+    overlayCtx.fillStyle = '#ffdd44';
+    overlayCtx.fillText('TOP SCORES', CANVAS_W / 2, 92);
+
+    // Divider
+    overlayCtx.fillStyle = '#555';
+    overlayCtx.fillRect(20, 104, CANVAS_W - 40, 1);
+
+    // Leaderboard rows
+    overlayCtx.font = '12px monospace';
+    overlayCtx.textAlign = 'left';
+    overlayCtx.textBaseline = 'middle';
+    const rowH = 17;
+    topScores.slice(0, 8).forEach(({ player, score }, i) => {
+        const y = 112 + i * rowH + rowH / 2;
+        const rank = `${i + 1}.`;
+        overlayCtx.fillStyle = i === 0 ? '#ffd700' : '#cccccc';
+        overlayCtx.fillText(rank, 24, y);
+        overlayCtx.fillText(player.substring(0, 12), 52, y);
+        overlayCtx.textAlign = 'right';
+        overlayCtx.fillText(String(score), CANVAS_W - 24, y);
+        overlayCtx.textAlign = 'left';
+    });
+
+    if (topScores.length === 0) {
+        overlayCtx.fillStyle = '#888';
+        overlayCtx.textAlign = 'center';
+        overlayCtx.fillText('loading...', CANVAS_W / 2, 148);
+    }
 
     // Hint
-    overlayCtx.font = '14px monospace';
+    overlayCtx.font = '12px monospace';
     overlayCtx.fillStyle = '#aaaaaa';
-    overlayCtx.fillText('Press any button to retry', CANVAS_W / 2, 140);
+    overlayCtx.textAlign = 'center';
+    overlayCtx.textBaseline = 'middle';
+    overlayCtx.fillText('Press any button to retry', CANVAS_W / 2, CANVAS_H - 14);
 
     updateTexture(overlayTexture, overlayCtx);
 }
@@ -46,8 +81,8 @@ export function initGameOverHUD(camera) {
 
     // Camera frustum for 640×480, size=300: 400×300 world units
     const pxToWorld = (camera.right - camera.left) / 640;
-    const worldW = CANVAS_W * pxToWorld;   // 200
-    const worldH = CANVAS_H * pxToWorld;   // 100
+    const worldW = CANVAS_W * pxToWorld;
+    const worldH = CANVAS_H * pxToWorld;
     const posZ   = -(camera.near + 50);    // -150
 
     const texCanvas = document.createElement('canvas');
@@ -75,12 +110,15 @@ export function initGameOverHUD(camera) {
     camera.add(overlayMesh);
 }
 
-export function showGameOver(score) {
+export async function showGameOver(score) {
     if (!isLauncher) return;
     if (!overlayMesh) return;
     currentScore = score;
-    drawOverlay();
+    topScores = [];
+    drawOverlay();                  // show immediately with "loading..."
     overlayMesh.visible = true;
+    topScores = await getTopScores(8);
+    drawOverlay();                  // redraw with actual data
 }
 
 export function hideGameOver() {
