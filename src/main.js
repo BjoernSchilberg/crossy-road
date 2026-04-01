@@ -10,10 +10,12 @@ import { pollGamepad, setRestartCallback } from './collectUserInput.js';
 import { initScoreHUD, renderScoreHUD } from './components/ScoreDisplay.js';
 import { initGameOverHUD, hideGameOver } from './components/GameOverDisplay.js';
 import { hitTest } from "./hitTest.js";
-import { gameOver, resetGameOver } from "./gameState.js";
+import { gameOver, resetGameOver, setPlayerName, generateRandomName } from "./gameState.js";
 import { mobileControlsReserve } from "./mobileControlsReserve.js";
 
 // import './style.css' // Not supported in the native runner
+
+const isLauncher = typeof globalThis._jsg !== 'undefined';
 
 const scene = new THREE.Scene();
 scene.add(player)
@@ -23,17 +25,13 @@ const ambientLight = new THREE.AmbientLight();
 scene.add(ambientLight);
 
 const dirLight = DirectionalLight();
-//scene.add(dirLight);
 dirLight.target=player;
 player.add(dirLight);
 
 const camera = Camera();
-//scene.add(camera)
 player.add(camera);
 
-const resultDOM = typeof globalThis._jsg === 'undefined'
-    ? document.getElementById("result-container")
-    : null;
+const resultDOM = isLauncher ? null : document.getElementById("result-container");
 
 function initializeGame() {
     resetGameOver();
@@ -44,9 +42,27 @@ function initializeGame() {
     if (resultDOM) resultDOM.style.visibility = "hidden";
 }
 
-// Browser: retry button
-if (typeof globalThis._jsg === 'undefined') {
+// Browser: name-entry overlay shown before first game
+if (!isLauncher) {
+    const nameEntryDOM = document.getElementById("name-entry");
+    const nameInputDOM = document.getElementById("name-input");
+    const nameConfirmDOM = document.getElementById("name-confirm");
+
+    function confirmName() {
+        setPlayerName(nameInputDOM?.value ?? '');
+        if (nameEntryDOM) nameEntryDOM.style.display = "none";
+    }
+
+    nameConfirmDOM?.addEventListener("click", confirmName);
+    nameInputDOM?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") confirmName();
+    });
+
+    // Retry: keep the same name, just restart the game
     document.querySelector("#retry")?.addEventListener("click", initializeGame);
+} else {
+    // Launcher: no keyboard — assign random name immediately
+    setPlayerName(generateRandomName());
 }
 
 initializeGame();
@@ -57,15 +73,16 @@ initScoreHUD(camera);
 initGameOverHUD(camera);
 
 // Launcher: restart on any gamepad button press when game over
-setRestartCallback(initializeGame);
+setRestartCallback(() => {
+    setPlayerName(generateRandomName());
+    initializeGame();
+});
 
 let lastTime = performance.now();
 
 function update(deltaTime) {
-    // check for gamepad input (also handles restart when game over)
     pollGamepad();
     if (gameOver) return;
-    // update game logic
     animateVehicles();
     animatePlayer();
     hitTest();
@@ -86,7 +103,7 @@ function gameLoop(time) {
 
 requestAnimationFrame(gameLoop);
 
-if (typeof globalThis._jsg === 'undefined') {
+if (!isLauncher) {
     window.addEventListener('resize', () => {
         const w = window.innerWidth;
         const h = window.innerHeight - mobileControlsReserve();

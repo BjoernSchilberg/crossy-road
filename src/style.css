@@ -58,6 +58,52 @@ body {
   color: white;
 }
 
+#name-entry {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+
+  #name-entry-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: white;
+    font-size: 0.8em;
+
+    p {
+      margin: 0;
+      letter-spacing: 2px;
+    }
+
+    input {
+      background: #111;
+      border: 2px solid white;
+      color: white;
+      font-family: inherit;
+      font-size: 1em;
+      padding: 8px 12px;
+      text-align: center;
+      outline: none;
+      width: 200px;
+    }
+
+    button {
+      background: red;
+      color: white;
+      border: none;
+      font-family: inherit;
+      font-size: 1em;
+      padding: 12px 40px;
+      cursor: pointer;
+    }
+  }
+}
+
 #result-container {
   position: absolute;
   min-width: 100%;

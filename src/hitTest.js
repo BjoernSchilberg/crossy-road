@@ -1,8 +1,10 @@
 import * as THREE from "three";
 import { metadata as rows } from "./components/Map.js";
 import { player, position } from "./components/Player.js";
-import { gameOver, setGameOver } from "./gameState.js";
+import { gameOver, setGameOver, playerName } from "./gameState.js";
 import { showGameOver } from "./components/GameOverDisplay.js";
+import { submitScore } from "./services/pocketbase.js";
+import { getPlatform } from "./services/platform.js";
 
 const isLauncher = typeof globalThis._jsg !== 'undefined';
 const resultDOM    = isLauncher ? null : document.getElementById("result-container");
@@ -29,9 +31,11 @@ export function hitTest() {
 
       if (_playerBox.intersectsBox(_vehicleBox)) {
         setGameOver();
-        showGameOver(position.currentRow);   // launcher Three.js HUD
-        if (resultDOM) resultDOM.style.visibility = "visible"; // browser DOM
-        if (finalScoreDOM) finalScoreDOM.innerText = position.currentRow.toString();
+        const score = position.currentRow;
+        showGameOver(score);                                        // launcher Three.js HUD
+        if (resultDOM) resultDOM.style.visibility = "visible";     // browser DOM
+        if (finalScoreDOM) finalScoreDOM.innerText = score.toString();
+        submitScore(playerName, score, getPlatform());              // fire-and-forget
       }
     });
   }
