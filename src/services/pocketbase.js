@@ -38,7 +38,7 @@ export async function submitScore(player, score, platform) {
             }
         } else {
             // Update existing record with the new best score
-            await fetch(`${POCKETBASE_URL}/api/collections/scores/records/${_recordId}`, {
+            const patchRes = await fetch(`${POCKETBASE_URL}/api/collections/scores/records/${_recordId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export async function submitScore(player, score, platform) {
                 },
                 body: JSON.stringify({ score }),
             });
-            _bestScore = score;
+            if (patchRes.ok) _bestScore = score;
         }
     } catch (_) {
         // Offline or server unreachable — silently ignore
