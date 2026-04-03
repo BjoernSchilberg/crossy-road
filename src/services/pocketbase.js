@@ -1,11 +1,10 @@
 import { POCKETBASE_TOKEN as _deviceToken } from '../token.js';
 
 const POCKETBASE_URL = 'https://9fdb90be-c897-4b83-a2ea-0148556c6cc1.pub.instances.scw.cloud';
-
+const POCKETBASE_TOKEN = import.meta.env.VITE_POCKETBASE_TOKEN ?? '';
 // Vite builds: VITE_POCKETBASE_TOKEN is injected from the environment at build time.
 // Launcher (Node.js): import.meta.env is undefined → falls back to token.js on the device.
-const _envToken = import.meta.env?.VITE_POCKETBASE_TOKEN ?? '';
-const POCKETBASE_TOKEN = _envToken || _deviceToken;
+
 
 let _recordId = null;   // PocketBase record ID after first submission
 let _bestScore = -1;    // highest score submitted this session
