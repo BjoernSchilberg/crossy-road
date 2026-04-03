@@ -1,5 +1,3 @@
-import { POCKETBASE_TOKEN as _deviceToken } from '../token.js';
-
 const POCKETBASE_URL = 'https://9fdb90be-c897-4b83-a2ea-0148556c6cc1.pub.instances.scw.cloud';
 const POCKETBASE_TOKEN = import.meta.env.VITE_POCKETBASE_TOKEN ?? '';
 // Vite builds: VITE_POCKETBASE_TOKEN is injected from the environment at build time.
