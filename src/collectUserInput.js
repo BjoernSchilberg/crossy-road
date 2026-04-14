@@ -46,9 +46,14 @@ const prevState = {};
 const prevGameOverState = {};
 // Callback invoked when a button is pressed during game-over
 let _restartCallback = null;
+let _scrollCallback = null;
 
 export function setRestartCallback(cb) {
     _restartCallback = cb;
+}
+
+export function setScrollCallback(cb) {
+    _scrollCallback = cb;
 }
 
 export function pollGamepad() {
@@ -60,16 +65,22 @@ export function pollGamepad() {
     const hotkey = gp.buttons[16]?.pressed;
 
     if (gameOver) {
-        if (!hotkey && _restartCallback) {
-            // Any button press (edge: was not pressed last frame) restarts the game
+        if (!hotkey) {
             for (let i = 0; i < gp.buttons.length; i++) {
                 if (i === 16) continue;
                 const pressed = gp.buttons[i]?.pressed ?? false;
                 if (pressed && !prevGameOverState[i]) {
-                    // Clear state so it doesn't fire again immediately after restart
-                    for (const k in prevGameOverState) delete prevGameOverState[k];
-                    _restartCallback();
-                    return;
+                    // D-pad up (12) / down (13) → scroll leaderboard
+                    if (i === 12 && _scrollCallback) {
+                        _scrollCallback(-1);
+                    } else if (i === 13 && _scrollCallback) {
+                        _scrollCallback(1);
+                    } else if (_restartCallback) {
+                        // Any other button → restart
+                        for (const k in prevGameOverState) delete prevGameOverState[k];
+                        _restartCallback();
+                        return;
+                    }
                 }
                 prevGameOverState[i] = pressed;
             }

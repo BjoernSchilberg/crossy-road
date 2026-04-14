@@ -47,7 +47,7 @@ export function hitTest() {
         if (finalScoreDOM) finalScoreDOM.innerText = score.toString();
         // Submit score then refresh leaderboard (browser only)
         Promise.resolve(submitScore(playerName, score, getPlatform())).then(() =>
-            getTopScores(10).then(renderLeaderboard)
+            getTopScores(20).then(renderLeaderboard)
         );
       }
     });

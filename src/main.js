@@ -6,9 +6,9 @@ import { player, initializePlayer } from './components/Player.js';
 import { map, initializeMap } from './components/Map.js';
 import { animateVehicles } from './animateVehicles.js';
 import { animatePlayer, resetAnimation } from './animatePlayer.js';
-import { pollGamepad, setRestartCallback } from './collectUserInput.js';
+import { pollGamepad, setRestartCallback, setScrollCallback } from './collectUserInput.js';
 import { initScoreHUD, renderScoreHUD } from './components/ScoreDisplay.js';
-import { initGameOverHUD, hideGameOver } from './components/GameOverDisplay.js';
+import { initGameOverHUD, hideGameOver, scrollLeaderboard } from './components/GameOverDisplay.js';
 import { hitTest } from "./hitTest.js";
 import { gameOver, resetGameOver, setPlayerName, generateRandomName } from "./gameState.js";
 import { mobileControlsReserve } from "./mobileControlsReserve.js";
@@ -77,6 +77,7 @@ setRestartCallback(() => {
     setPlayerName(generateRandomName());
     initializeGame();
 });
+setScrollCallback((delta) => scrollLeaderboard(delta));
 
 let lastTime = performance.now();
 
